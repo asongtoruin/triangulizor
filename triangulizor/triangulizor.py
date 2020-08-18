@@ -1,6 +1,5 @@
 #!/usr/bin/env python2.7
 
-import itertools
 import logging
 import sys
 
@@ -18,6 +17,14 @@ except ImportError:
         else:
             raise
 
+try:
+    basestring
+    from itertools import izip
+except NameError:
+    basestring = str
+    izip = zip
+    xrange = range
+    from functools import reduce
 
 def triangulize(image, tile_size):
     """Processes the given image by breaking it down into tiles of the given
@@ -39,7 +46,7 @@ def triangulize(image, tile_size):
     if tile_size == 0:
         tile_size = guess_tile_size(image)
     if tile_size % 2 != 0:
-        tile_size = (tile_size / 2) * 2
+        tile_size = int(tile_size / 2) * 2
 
     logging.info('Input image size: %r', image.size)
     logging.info('Tile size: %r', tile_size)
@@ -99,7 +106,7 @@ def triangle_colors(tile_x, tile_y, tile_size, pix):
     a 4-tuple of colors for the triangles in this order: North, East, South,
     West (clockwise).
     """
-    quad_size = tile_size / 2
+    quad_size = int(tile_size / 2)
 
     north = []
     for y in xrange(tile_y, tile_y + quad_size):
@@ -164,12 +171,12 @@ def get_average_color(colors):
     """
     c = reduce(color_reducer, colors)
     total = len(colors)
-    return tuple(v / total for v in c)
+    return tuple(int(v / total) for v in c)
 
 
 def color_reducer(c1, c2):
     """Helper function used to add two colors together when averaging."""
-    return tuple(v1 + v2 for v1, v2 in itertools.izip(c1, c2))
+    return tuple(v1 + v2 for v1, v2 in izip(c1, c2))
 
 
 def get_color_dist(c1, c2):
@@ -177,7 +184,7 @@ def get_color_dist(c1, c2):
     another color whose components are the absolute values of the difference
     between each component of the input colors.
     """
-    return tuple(abs(v1 - v2) for v1, v2 in itertools.izip(c1, c2))
+    return tuple(abs(v1 - v2) for v1, v2 in izip(c1, c2))
 
 
 def prep_image(image, tile_size):
@@ -185,8 +192,8 @@ def prep_image(image, tile_size):
     of the image that is evenly divisible in both dimensions by the tile size.
     """
     w, h = image.size
-    x_tiles = w / tile_size  # floor division
-    y_tiles = h / tile_size
+    x_tiles = int(w / tile_size)
+    y_tiles = int(h / tile_size)
     new_w = x_tiles * tile_size
     new_h = y_tiles * tile_size
     if new_w == w and new_h == h:

@@ -14,7 +14,7 @@ if __name__ == '__main__':
         if re.match(r'^https?://', x):
             try:
                 return urllib2.urlopen(x)
-            except urllib2.URLError, e:
+            except urllib2.URLError as e:
                 raise argparse.ArgumentTypeError(str(e))
         elif os.path.isfile(x):
             return open(x, 'rb')
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     inbuffer = StringIO(args.infile.read())
     try:
         image = triangulize(inbuffer, args.tile_size)
-    except IOError, e:
+    except IOError as e:
         logging.error('Unable to open image: %s', e)
     except KeyboardInterrupt:
         logging.info('Interrupted by user, exiting...')
